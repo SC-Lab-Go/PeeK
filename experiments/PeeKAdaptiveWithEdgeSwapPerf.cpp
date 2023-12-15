@@ -24,6 +24,8 @@
 #define KSP_PD false
 #endif
 
+#define KSP_NUM_THREADS_32 32
+
 std::set<std::pair<NODE_ID, NODE_ID>> getPairsOfSrcAndDestFromFile(const char* path = NULL) {
     std::set<std::pair<NODE_ID, NODE_ID>> src_dest;
     src_dest.clear();
@@ -48,11 +50,32 @@ std::set<std::pair<NODE_ID, NODE_ID>> getPairsOfSrcAndDestFromFile(const char* p
     return src_dest;
 }
 
+// restore graph because edge swap can change original graph
+template <bool directed = true, bool weighted = true>
+void restoreGraph(const BasicGraph<directed, weighted>& G, const BasicGraph<directed, weighted>& G_backup) {
+    const auto csr_backup = G_backup.get_csr_graph();
+    const auto csr = G.get_csr_graph();
+
+    csr->num_nodes = csr_backup->num_nodes;
+    csr->num_edges = csr_backup->num_edges;
+    csr->k_bound_nodes.clear();
+#pragma omp parallel for num_threads(KSP_NUM_THREADS_32)
+    for (NODE_ID i = 0; i < csr_backup->num_nodes + 1; i++) {
+        csr->begin[i] = csr_backup->begin[i];
+        csr->num_light_edges[i] = csr_backup->num_light_edges[i];
+    }
+#pragma omp parallel for num_threads(KSP_NUM_THREADS_32)
+    for (NODE_ID i = 0; i < csr_backup->num_edges; i++) {
+        csr->adj[i] = csr_backup->adj[i];
+        csr->value[i] = csr_backup->value[i];
+    }
+}
+
 int main(int argc, char** argv) {
     double start_time, end_time;
 
     if (argc < 5) {
-        std::cout << "Arguments:" << std::endl << " [1] fw_beg_file" << std::endl << " [2] fw_csr_file" << std::endl << " [3] fw_value_file" << std::endl << " [4] src_dest_file optional" << std::endl;
+        std::cout << "Arguments:" << std::endl << " [1] fw_beg_file" << std::endl << " [2] fw_adj_file" << std::endl << " [3] fw_value_file" << std::endl << " [4] src_dest_file" << std::endl;
         exit(0);
     }
 
@@ -61,14 +84,12 @@ int main(int argc, char** argv) {
 
     std::vector<unsigned int> k = {8, 128};
 
-    const unsigned int path_node_num_min = 3;
-    const unsigned int path_node_num_max = 8;
-    const unsigned int num_pairs = 100;
     const unsigned int runs = 1;
 
     using GraphType = BasicGraph<true, true>;
     start_time = wtime();
     const auto G = GraphRW::read_graph<true, true, true>(argv[1], argv[2], argv[3], default_delta);
+    const auto G_backup = GraphRW::read_graph<true, true, true>(argv[1], argv[2], argv[3], default_delta);
     end_time = wtime();
     std::cout << "file read time:" << end_time - start_time << std::endl;
     std::cout << "KSP_NUM_THREADS:" << KSP_NUM_THREADS << ",KSP_PD:" << KSP_PD << ",KSP_PD_L1:" << KSP_PD_L1 << ",COMPACT_KSP_NUM_THREADS:" << COMPACT_KSP_NUM_THREADS << ",COMPACT_KSP_PD:" << COMPACT_KSP_PD << std::endl;
@@ -93,6 +114,7 @@ int main(int argc, char** argv) {
                 end_time = wtime();
                 double run_time = end_time - start_time;
                 run_times.push_back(run_time);
+                restoreGraph<true, true>(G, G_backup);
             }
 
             double total_run_time = std::accumulate(run_times.begin(), run_times.end(), 0.0);

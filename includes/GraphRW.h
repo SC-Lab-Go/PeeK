@@ -34,7 +34,7 @@ public:
     {
         w_type total_weight = 0;
         w_type  heaviest_weight = weighted ? 0.0 : 1.0;
-        NODE_ID num_nodes   = fsize( beg_file ) / sizeof(NODE_ID) - 1;
+        NODE_ID num_nodes   = fsize( beg_file ) / sizeof(EDGE_ID) - 1;
         EDGE_ID num_edges   = fsize( adj_file ) / sizeof(NODE_ID);
 
         FILE *file = fopen( beg_file, "rb" );
@@ -43,8 +43,8 @@ public:
             std::cout << beg_file << " cannot open " << beg_file << std::endl;
             exit( -1 );
         }
-        NODE_ID *tmp_begin  = new NODE_ID[num_nodes + 1];
-        int ret     = fread( tmp_begin, sizeof(NODE_ID), num_nodes + 1, file );
+        EDGE_ID *tmp_begin  = new EDGE_ID[num_nodes + 1];
+        int ret     = fread( tmp_begin, sizeof(EDGE_ID), num_nodes + 1, file );
         assert( ret == num_nodes + 1 );
         fclose( file );
 
@@ -74,7 +74,7 @@ public:
 
         for ( NODE_ID i = 0; i < num_nodes + 1; ++i )
         {
-            csr->begin[i] = (NODE_ID) tmp_begin[i];
+            csr->begin[i] = (EDGE_ID) tmp_begin[i];
         }
 
         for ( EDGE_ID i = 0; i < num_edges; ++i )
@@ -92,6 +92,7 @@ public:
                     heaviest_weight = csr->value[i];
             }
         }
+
 
         delete[] tmp_begin;
         delete[] tmp_adj;
@@ -145,7 +146,7 @@ public:
         w_type avg_degree = static_cast<w_type>(num_edges) / static_cast<w_type>(num_nodes);
         w_type avg_weight = total_weight / num_edges;
         w_type delta = avg_weight / avg_degree;
-        std::cout << "original graph delta:" << delta << std::endl;
+        // std::cout << "original graph delta:" << delta << std::endl;
         GraphRW::partition_edges_by_weight( csr, delta );
 
         
