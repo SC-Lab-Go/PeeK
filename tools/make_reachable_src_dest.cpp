@@ -19,7 +19,7 @@
 #define KSP_PD_L1 false
 
 template <typename GraphType>
-std::set<std::pair<NODE_ID, NODE_ID>> getSrcAndDest(const GraphType& G, const unsigned int path_node_num_min = 3, const unsigned int path_node_num_max = 8, const unsigned int num_pairs = 100) {
+std::set<std::pair<NODE_ID, NODE_ID>> getSrcAndDest(const GraphType& G, const unsigned int path_node_num_min = 3, const unsigned int path_node_num_max = 8, const unsigned int num_pairs = 10) {
     KSPGraph<GraphType> K(G);
     srand(static_cast<unsigned int>(time(nullptr)));
     std::set<std::pair<NODE_ID, NODE_ID>> src_dest;

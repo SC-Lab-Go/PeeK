@@ -11,6 +11,11 @@
 #include <boost/sort/sort.hpp>
 #include <map>
 
+#ifndef COMPACT_KSP_NUM_THREADS
+#define COMPACT_KSP_NUM_THREADS 1
+#endif
+#define COMPACT_KSP_PD true
+
 inline double wtime() {
     double time[2];
     struct timeval time1;
@@ -78,7 +83,7 @@ class PeeKAdaptiveWithEdgeSwap : public KSP<GraphType, num_threads, pps> {
 
         if (k_bound_nodes_num > adaptive_ratio * orig.get_num_nodes()) {
             // start_time = wtime();
-            OptYenEdgeSwap<DeltaSteppingStatic, GraphType, num_threads, pps> optyen(orig.get_original_graph(), k, reverse_sssp_t, paths, reverse_graph, is_k_bound_nodes);
+            OptYenEdgeSwap<DeltaSteppingStatic, GraphType, num_threads, COMPACT_KSP_PD> optyen(orig.get_original_graph(), k, reverse_sssp_t, paths, reverse_graph, is_k_bound_nodes);
 
 #ifdef TECHNIQUE_BOUND
             // float number could cause one less path in some cases, in order to make sure correct totally, now comment it out or make the k bound is greater
@@ -126,7 +131,7 @@ class PeeKAdaptiveWithEdgeSwap : public KSP<GraphType, num_threads, pps> {
         // std::cout << "," << wtime() - start_time;
 
         // start_time = wtime();
-        OptYen<DeltaSteppingStatic, GraphType, num_threads, pps> optyen(compact_g, k, compact_reverse_sssp_t, paths);
+        OptYen<DeltaSteppingStatic, GraphType, COMPACT_KSP_NUM_THREADS, COMPACT_KSP_PD> optyen(compact_g, k, compact_reverse_sssp_t, paths);
 
 #ifdef TECHNIQUE_BOUND
         // float number could cause one less path in some cases, in order to make sure correct totally, now comment it out or make the k bound is greater
