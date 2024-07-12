@@ -45,3 +45,9 @@ If you use PeeK in your project, please cite the following paper.
   year={2023}
 }
 ```
+
+----
+Compared work
+-------
+This is the open version of OptYen.
+https://github.com/AbcAeffchen/k-shortest-path
