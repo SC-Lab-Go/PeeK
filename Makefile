@@ -2,6 +2,7 @@ scale_status: peek_adaptive_with_status_array_kbound_thread_32.exe peek_adaptive
 
 scale_swap: peek_adaptive_with_edge_swap_kbound_thread_32.exe peek_adaptive_with_edge_swap_kbound_thread_16.exe peek_adaptive_with_edge_swap_kbound_thread_8.exe peek_adaptive_with_edge_swap_kbound_thread_4.exe peek_adaptive_with_edge_swap_kbound_thread_2.exe peek_adaptive_with_edge_swap_kbound_thread_1.exe
 
+
 runSTPruning.exe: ./experiments/runSTPruning.cpp
 	g++ -O3 -I./includes -fopenmp -o runSTPruning.exe ./experiments/runSTPruning.cpp
 
@@ -61,6 +62,9 @@ adaptive_graph_compact_vertex.exe: ./experiments/adaptiveGraphCompact.cpp
 
 adaptive_graph_compact_edge.exe: ./experiments/adaptiveGraphCompact.cpp
 	g++ -O3 -I./includes -DTECHNIQUE_BOUND -DKSP_NUM_THREADS=4 -DKSP_PARALLEL_DEVIATIONS_L2 -DCOMPACT_KSP_NUM_THREADS=4 -DADAPTIVE_GRAPH_COMPACT_EDGE -fopenmp -o adaptive_graph_compact_edge.exe ./experiments/adaptiveGraphCompact.cpp
+
+peek_limitations_test.exe: ./experiments/PeeKLimitations.cpp
+	g++ -O3 -I./includes -fopenmp -o peek_limitations_test.exe ./experiments/PeeKLimitations.cpp
 
 clean:
 	rm -rf *.o

@@ -28,6 +28,11 @@ make peek_adaptive_with_edge_swap_kbound_thread_32.exe
 ./peek_adaptive_with_edge_swap_kbound_thread_32.exe tools/PaRMAT/Release/begin.bin tools/PaRMAT/Release/adj.bin tools/PaRMAT/Release/value.bin tools/PaRMAT/Release/reachable_src_dest.txt
 
 
+To run the limitation-focused microbenchmarks
+make peek_limitations_test.exe
+./peek_limitations_test.exe
+
+
 ```
 
 ----

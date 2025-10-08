@@ -61,6 +61,13 @@ class PeeKAdaptiveWithEdgeSwap : public KSP<GraphType, num_threads, pps> {
     ~PeeKAdaptiveWithEdgeSwap() { delete[] is_k_bound_nodes; }
 
     w_type getKBound() { return k_bound; }
+    unsigned int getKBoundNodeCount() const noexcept { return k_bound_nodes_num; }
+
+    unsigned int getActualK() const noexcept { return actual_k; }
+
+    bool usedEdgeSwapMode() const noexcept {
+        return k_bound_nodes_num > adaptive_ratio * orig.get_num_nodes();
+    }
 
     std::vector<Path> compute(const NODE_ID source, const NODE_ID destination) {
         double start_time, end_time;
